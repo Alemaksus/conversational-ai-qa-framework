@@ -9,6 +9,7 @@ import pytest
 from caqf.data import CaseModel, MatrixSchemaError, load_test_cases
 
 
+@pytest.mark.unit
 def test_load_test_cases_from_template():
     """Test loading test cases from the template Excel file."""
     xlsx_path = Path("templates/test-case-matrix.xlsx")

@@ -1,8 +1,11 @@
 """Smoke tests to verify basic framework functionality."""
 
+import pytest
+
 from caqf.config import get_config, Config
 
 
+@pytest.mark.unit
 def test_config_loads():
     """Verify that configuration loads and returns defaults."""
     config = get_config()
@@ -12,6 +15,7 @@ def test_config_loads():
     assert issubclass(config, Config)
 
 
+@pytest.mark.unit
 def test_config_has_defaults():
     """Verify that configuration has expected default values."""
     config = get_config()
@@ -22,6 +26,7 @@ def test_config_has_defaults():
     assert isinstance(config.AUTH_TOKEN, str)
 
 
+@pytest.mark.unit
 def test_config_methods():
     """Verify that configuration methods work correctly."""
     config = get_config()

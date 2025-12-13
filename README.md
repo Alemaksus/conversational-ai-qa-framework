@@ -37,6 +37,16 @@ This project is designed for teams building conversational AI on top of workflow
 
 5. Run tests:
    ```bash
+   # Run unit tests only
+   pytest -q -m unit
+   
+   # Run matrix tests (requires Actual Result in Excel)
+   pytest -q -m matrix
+   
+   # Demo matrix run with synthetic actual output
+   pytest -q -m matrix --use-synthetic-actual
+   
+   # Run all tests
    pytest -q
    ```
 
@@ -49,17 +59,35 @@ This project is designed for teams building conversational AI on top of workflow
 ```
 conversational-ai-qa-framework/
 ├── src/
-│   └── caqf/              # Main package (Conversational AI QA Framework)
+│   └── caqf/                      # Main package (Conversational AI QA Framework)
 │       ├── __init__.py
-│       └── config.py      # Configuration loader
-├── tests/                 # Test suite
+│       ├── config.py              # Configuration loader
+│       ├── data/                  # Data loading and models
+│       │   ├── models.py          # CaseModel dataclass
+│       │   └── matrix_loader.py  # Excel matrix loader
+│       ├── rules/                 # Rules engine
+│       │   ├── types.py           # Response and Rule types
+│       │   ├── validators.py      # Rule validators
+│       │   └── matchers.py        # Rule parsing and evaluation
+│       ├── runner/                # Test execution layer
+│       │   ├── execution_result.py
+│       │   └── test_runner.py
+│       └── pytest_integration.py  # Pytest integration helpers
+├── tests/                          # Test suite
 │   ├── __init__.py
-│   └── test_smoke.py      # Smoke tests
-├── docs/                  # Documentation
-├── templates/             # QA templates
-├── pyproject.toml         # Project configuration
-├── requirements.txt       # Python dependencies
-├── .env.example          # Environment variables template
+│   ├── conftest.py                # Pytest configuration and hooks
+│   ├── test_smoke.py              # Smoke tests
+│   ├── test_matrix_loader.py     # Matrix loader tests
+│   ├── test_rules_engine.py      # Rules engine tests
+│   ├── test_test_runner.py       # Test runner tests
+│   └── test_e2e_from_excel.py    # End-to-end Excel matrix tests
+├── docs/                           # Documentation
+├── templates/                      # QA templates
+│   └── test-case-matrix.xlsx      # Excel test case matrix template
+├── pytest.ini                     # Pytest configuration
+├── pyproject.toml                 # Project configuration
+├── requirements.txt               # Python dependencies
+├── .env.example                   # Environment variables template
 └── README.md
 ```
 

@@ -17,4 +17,12 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "unit: Unit tests (isolated component tests)",
+    "matrix: Tests loaded from Excel test case matrix",
+]
+addopts = [
+    "-ra",
+    "--strict-markers",
+]
 
