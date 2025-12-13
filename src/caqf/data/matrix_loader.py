@@ -106,87 +106,90 @@ def load_test_cases(xlsx_path: str) -> list[CaseModel]:
         raise FileNotFoundError(f"Excel file not found: {xlsx_path}")
     
     workbook = openpyxl.load_workbook(path, data_only=True)
-    sheet = _get_sheet(workbook)
-    
-    # Build header mapping
-    header_mapping = _build_header_mapping(sheet)
-    
-    # Validate required columns
-    _validate_required_columns(header_mapping)
-    
-    # Extract column indices for required fields
-    test_case_id_col = header_mapping["Test Case ID"]
-    scenario_id_col = header_mapping["Scenario ID"]
-    component_col = header_mapping["Component"]
-    test_description_col = header_mapping["Test Description"]
-    test_type_col = header_mapping["Test Type"]
-    priority_col = header_mapping["Priority"]
-    prerequisites_col = header_mapping["Prerequisites"]
-    test_steps_col = header_mapping["Test Steps"]
-    expected_result_col = header_mapping["Expected Result"]
-    actual_result_col = header_mapping.get("Actual Result")
-    status_col = header_mapping.get("Status")
-    notes_col = header_mapping.get("Notes")
-    
-    test_cases = []
-    
-    # Iterate rows starting from row 2
-    row = 2
-    while True:
-        # Stop if Test Case ID is empty
-        test_case_id = _get_cell_value(sheet, row, test_case_id_col).strip()
-        if not test_case_id:
-            break
+    try:
+        sheet = _get_sheet(workbook)
         
-        # Skip completely empty rows
-        if _is_row_empty(sheet, row, header_mapping):
+        # Build header mapping
+        header_mapping = _build_header_mapping(sheet)
+        
+        # Validate required columns
+        _validate_required_columns(header_mapping)
+        
+        # Extract column indices for required fields
+        test_case_id_col = header_mapping["Test Case ID"]
+        scenario_id_col = header_mapping["Scenario ID"]
+        component_col = header_mapping["Component"]
+        test_description_col = header_mapping["Test Description"]
+        test_type_col = header_mapping["Test Type"]
+        priority_col = header_mapping["Priority"]
+        prerequisites_col = header_mapping["Prerequisites"]
+        test_steps_col = header_mapping["Test Steps"]
+        expected_result_col = header_mapping["Expected Result"]
+        # Optional columns (not in REQUIRED_COLUMNS)
+        actual_result_col = header_mapping.get("Actual Result")
+        status_col = header_mapping.get("Status")
+        notes_col = header_mapping.get("Notes")
+        
+        test_cases = []
+        
+        # Iterate rows starting from row 2
+        row = 2
+        while True:
+            # Stop if Test Case ID is empty
+            test_case_id = _get_cell_value(sheet, row, test_case_id_col).strip()
+            if not test_case_id:
+                break
+            
+            # Skip completely empty rows
+            if _is_row_empty(sheet, row, header_mapping):
+                row += 1
+                continue
+            
+            # Extract all fields
+            scenario_id = _get_cell_value(sheet, row, scenario_id_col).strip()
+            component = _get_cell_value(sheet, row, component_col).strip()
+            test_description = _get_cell_value(sheet, row, test_description_col).strip()
+            test_type = _get_cell_value(sheet, row, test_type_col).strip()
+            priority = _get_cell_value(sheet, row, priority_col).strip()
+            prerequisites = _get_cell_value(sheet, row, prerequisites_col).strip()
+            test_steps = _get_cell_value(sheet, row, test_steps_col).strip()
+            expected_result = _get_cell_value(sheet, row, expected_result_col).strip()
+            
+            # Optional fields (may be None)
+            actual_result = None
+            if actual_result_col:
+                value = _get_cell_value(sheet, row, actual_result_col).strip()
+                actual_result = value if value else None
+            
+            status = None
+            if status_col:
+                value = _get_cell_value(sheet, row, status_col).strip()
+                status = value if value else None
+            
+            notes = None
+            if notes_col:
+                value = _get_cell_value(sheet, row, notes_col).strip()
+                notes = value if value else None
+            
+            test_case = CaseModel(
+                test_case_id=test_case_id,
+                scenario_id=scenario_id,
+                component=component,
+                test_description=test_description,
+                test_type=test_type,
+                priority=priority,
+                prerequisites=prerequisites,
+                test_steps=test_steps,
+                expected_result=expected_result,
+                actual_result=actual_result,
+                status=status,
+                notes=notes,
+            )
+            
+            test_cases.append(test_case)
             row += 1
-            continue
         
-        # Extract all fields
-        scenario_id = _get_cell_value(sheet, row, scenario_id_col).strip()
-        component = _get_cell_value(sheet, row, component_col).strip()
-        test_description = _get_cell_value(sheet, row, test_description_col).strip()
-        test_type = _get_cell_value(sheet, row, test_type_col).strip()
-        priority = _get_cell_value(sheet, row, priority_col).strip()
-        prerequisites = _get_cell_value(sheet, row, prerequisites_col).strip()
-        test_steps = _get_cell_value(sheet, row, test_steps_col).strip()
-        expected_result = _get_cell_value(sheet, row, expected_result_col).strip()
-        
-        # Optional fields (may be None)
-        actual_result = None
-        if actual_result_col:
-            value = _get_cell_value(sheet, row, actual_result_col).strip()
-            actual_result = value if value else None
-        
-        status = None
-        if status_col:
-            value = _get_cell_value(sheet, row, status_col).strip()
-            status = value if value else None
-        
-        notes = None
-        if notes_col:
-            value = _get_cell_value(sheet, row, notes_col).strip()
-            notes = value if value else None
-        
-        test_case = CaseModel(
-            test_case_id=test_case_id,
-            scenario_id=scenario_id,
-            component=component,
-            test_description=test_description,
-            test_type=test_type,
-            priority=priority,
-            prerequisites=prerequisites,
-            test_steps=test_steps,
-            expected_result=expected_result,
-            actual_result=actual_result,
-            status=status,
-            notes=notes,
-        )
-        
-        test_cases.append(test_case)
-        row += 1
-    
-    workbook.close()
-    return test_cases
+        return test_cases
+    finally:
+        workbook.close()
 
