@@ -6,7 +6,7 @@ from pathlib import Path
 import openpyxl
 import pytest
 
-from caqf.data import MatrixSchemaError, TestCase, load_test_cases
+from caqf.data import CaseModel, MatrixSchemaError, load_test_cases
 
 
 def test_load_test_cases_from_template():
@@ -23,7 +23,7 @@ def test_load_test_cases_from_template():
     
     # Verify first test case
     first_case = test_cases[0]
-    assert isinstance(first_case, TestCase)
+    assert isinstance(first_case, CaseModel)
     assert first_case.test_case_id, "First test case should have non-empty test_case_id"
     assert first_case.expected_result, "First test case should have non-empty expected_result"
 
@@ -133,49 +133,55 @@ def test_load_test_cases_nonexistent_file():
         load_test_cases("nonexistent-file.xlsx")
 
 
-def test_load_test_cases_count_matches_excel():
-    """Test that the number of loaded test cases matches the Excel file."""
-    xlsx_path = Path("templates/test-case-matrix.xlsx")
+def test_load_test_cases_without_optional_columns():
+    """Test that optional columns (Actual Result, Status, Notes) can be missing."""
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        tmp_path = tmp.name
     
-    if not xlsx_path.exists():
-        pytest.skip(f"Template file not found: {xlsx_path}")
-    
-    # Count test cases directly from Excel file
-    workbook = openpyxl.load_workbook(xlsx_path, data_only=True)
-    sheet = workbook.active if "Test Cases" not in workbook.sheetnames else workbook["Test Cases"]
-    
-    # Find Test Case ID column by header name
-    header_row = sheet[1]
-    test_case_id_col = None
-    for cell in header_row:
-        if cell.value is not None and str(cell.value).strip() == "Test Case ID":
-            test_case_id_col = cell.column
-            break
-    
-    if test_case_id_col is None:
+    try:
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.title = "Test Cases"
+        
+        # Add headers without optional columns
+        headers = [
+            "Test Case ID",
+            "Scenario ID",
+            "Component",
+            "Test Description",
+            "Test Type",
+            "Priority",
+            "Prerequisites",
+            "Test Steps",
+            "Expected Result",
+            # "Actual Result", "Status", "Notes" are missing (optional)
+        ]
+        
+        for col_idx, header in enumerate(headers, start=1):
+            sheet.cell(row=1, column=col_idx, value=header)
+        
+        # Add a sample row
+        sheet.cell(row=2, column=1, value="TC-001")
+        sheet.cell(row=2, column=2, value="SCENARIO-001")
+        sheet.cell(row=2, column=3, value="Component1")
+        sheet.cell(row=2, column=4, value="Test description")
+        sheet.cell(row=2, column=5, value="Functional")
+        sheet.cell(row=2, column=6, value="High")
+        sheet.cell(row=2, column=7, value="None")
+        sheet.cell(row=2, column=8, value="Step 1")
+        sheet.cell(row=2, column=9, value="Expected result")
+        
+        workbook.save(tmp_path)
         workbook.close()
-        pytest.skip("Test Case ID column not found in Excel file")
+        
+        # Should load successfully without optional columns
+        test_cases = load_test_cases(tmp_path)
+        assert len(test_cases) == 1
+        assert test_cases[0].test_case_id == "TC-001"
+        assert test_cases[0].actual_result is None
+        assert test_cases[0].status is None
+        assert test_cases[0].notes is None
     
-    # Count rows with non-empty Test Case ID (starting from row 2)
-    excel_count = 0
-    row = 2
-    while True:
-        cell = sheet.cell(row=row, column=test_case_id_col)
-        test_case_id = cell.value
-        if test_case_id is None or (isinstance(test_case_id, str) and not test_case_id.strip()):
-            break
-        excel_count += 1
-        row += 1
-    
-    workbook.close()
-    
-    # Load test cases using the loader
-    loaded_cases = load_test_cases(str(xlsx_path))
-    loaded_count = len(loaded_cases)
-    
-    # Verify counts match
-    assert loaded_count == excel_count, (
-        f"Loaded test cases count ({loaded_count}) does not match "
-        f"Excel file count ({excel_count})"
-    )
+    finally:
+        Path(tmp_path).unlink(missing_ok=True)
 

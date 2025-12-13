@@ -7,7 +7,7 @@ import openpyxl
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
-from caqf.data.models import TestCase
+from caqf.data.models import CaseModel
 
 # Required column headers (order does not matter)
 REQUIRED_COLUMNS = {
@@ -20,9 +20,8 @@ REQUIRED_COLUMNS = {
     "Prerequisites",
     "Test Steps",
     "Expected Result",
-    "Actual Result",
-    "Status",
-    "Notes",
+    # Note: "Actual Result", "Status", and "Notes" are optional columns
+    # They are runtime outputs and may be empty in the Excel file
 }
 
 
@@ -89,14 +88,14 @@ def _is_row_empty(sheet: Worksheet, row: int, header_mapping: dict[str, int]) ->
     return True
 
 
-def load_test_cases(xlsx_path: str) -> list[TestCase]:
+def load_test_cases(xlsx_path: str) -> list[CaseModel]:
     """Load test cases from an Excel file.
     
     Args:
         xlsx_path: Path to the Excel file
         
     Returns:
-        List of TestCase objects
+        List of CaseModel objects
         
     Raises:
         MatrixSchemaError: If required columns are missing
@@ -170,7 +169,7 @@ def load_test_cases(xlsx_path: str) -> list[TestCase]:
             value = _get_cell_value(sheet, row, notes_col).strip()
             notes = value if value else None
         
-        test_case = TestCase(
+        test_case = CaseModel(
             test_case_id=test_case_id,
             scenario_id=scenario_id,
             component=component,

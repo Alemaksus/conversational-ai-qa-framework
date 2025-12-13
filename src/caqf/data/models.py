@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class TestCase:
+class CaseModel:
     """Represents a test case from the Excel matrix."""
 
     test_case_id: str

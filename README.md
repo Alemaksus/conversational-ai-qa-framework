@@ -15,23 +15,32 @@ This project is designed for teams building conversational AI on top of workflow
 
 2. Activate the virtual environment:
    ```bash
-   # On Windows
-   .venv\Scripts\activate
+   # On Windows (PowerShell)
+   .venv\Scripts\Activate.ps1
+   
+   # On Windows (Command Prompt)
+   .venv\Scripts\activate.bat
    
    # On macOS/Linux
    source .venv/bin/activate
    ```
 
-3. Install dependencies and package:
+3. Install dependencies:
    ```bash
    pip install -r requirements.txt
+   ```
+
+4. Install package (recommended):
+   ```bash
    pip install -e .
    ```
 
-4. Run tests:
+5. Run tests:
    ```bash
    pytest -q
    ```
+
+**Note:** Tests will work even without step 4 (package installation) thanks to `tests/conftest.py`, but installing the package is recommended for development.
 
 ---
 
