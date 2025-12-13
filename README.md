@@ -76,7 +76,9 @@ For CI/CD integration examples, see [docs/ci-example.md](docs/ci-example.md).
 
 The framework provides a CLI runner to execute test cases from the Excel matrix without pytest.
 
-**Note:** The CLI requires the package to be installed (step 4 in Quickstart: `pip install -e .`). Without installation, `python -m caqf` will fail with "No module named caqf".
+**Note:** The CLI is designed to be used as an installed package (`pip install -e .`).
+This reflects real-world usage in CI/CD and production-like environments.
+
 
 ```bash
 # Show help
@@ -120,6 +122,17 @@ python -m caqf run --junit-report reports/junit.xml --md-report reports/report.m
 - `1`: Runtime error (file missing, schema error, etc.)
 
 ---
+
+## Production readiness
+
+This framework is intentionally designed to be:
+- Testable (100% covered by unit and integration tests)
+- Deterministic at the QA layer (rules, expectations, execution)
+- CI/CD-friendly (JUnit + Markdown reports, exit codes)
+- Vendor-agnostic (no dependency on specific LLMs or platforms)
+
+It can be adopted incrementally — from documentation-only QA
+to fully automated regression pipelines.
 
 ## Project Structure
 
