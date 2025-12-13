@@ -6,6 +6,56 @@ This project is designed for teams building conversational AI on top of workflow
 
 ---
 
+## Quickstart
+
+1. Create a virtual environment:
+   ```bash
+   python -m venv .venv
+   ```
+
+2. Activate the virtual environment:
+   ```bash
+   # On Windows
+   .venv\Scripts\activate
+   
+   # On macOS/Linux
+   source .venv/bin/activate
+   ```
+
+3. Install dependencies and package:
+   ```bash
+   pip install -r requirements.txt
+   pip install -e .
+   ```
+
+4. Run tests:
+   ```bash
+   pytest -q
+   ```
+
+---
+
+## Project Structure
+
+```
+conversational-ai-qa-framework/
+├── src/
+│   └── caqf/              # Main package (Conversational AI QA Framework)
+│       ├── __init__.py
+│       └── config.py      # Configuration loader
+├── tests/                 # Test suite
+│   ├── __init__.py
+│   └── test_smoke.py      # Smoke tests
+├── docs/                  # Documentation
+├── templates/             # QA templates
+├── pyproject.toml         # Project configuration
+├── requirements.txt       # Python dependencies
+├── .env.example          # Environment variables template
+└── README.md
+```
+
+---
+
 ## Who this is for
 
 This framework is useful if you are:
