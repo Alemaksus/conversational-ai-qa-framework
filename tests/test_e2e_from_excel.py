@@ -32,8 +32,7 @@ def pytest_generate_tests(metafunc):
             return
         
         # Apply filters from command-line options
-        # Import here to avoid circular dependency
-        from tests.conftest import filter_test_cases
+        from caqf.pytest_integration import filter_test_cases
         
         priority = metafunc.config.getoption("--priority")
         status = metafunc.config.getoption("--status")

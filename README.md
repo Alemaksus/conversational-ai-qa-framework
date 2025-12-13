@@ -54,6 +54,73 @@ This project is designed for teams building conversational AI on top of workflow
 
 ---
 
+## Example Usage
+
+See the [customer support chatbot example](examples/customer-support-chatbot/) for a complete, real-world use case demonstrating how to:
+
+- Define test cases in an Excel matrix
+- Run automated validation with the CLI
+- Generate reports for CI/CD integration
+- Handle different test scenarios (order status, returns, account management, etc.)
+
+The example includes:
+- Ready-to-use test matrix (`test-case-matrix.xlsx`)
+- Step-by-step documentation
+- PowerShell script for quick demo (`run_demo.ps1`)
+
+For CI/CD integration examples, see [docs/ci-example.md](docs/ci-example.md).
+
+---
+
+## CLI Usage
+
+The framework provides a CLI runner to execute test cases from the Excel matrix without pytest.
+
+**Note:** The CLI requires the package to be installed (step 4 in Quickstart: `pip install -e .`). Without installation, `python -m caqf` will fail with "No module named caqf".
+
+```bash
+# Show help
+python -m caqf --help
+
+# Run tests with default matrix
+python -m caqf run
+
+# Run with custom matrix path
+python -m caqf run --matrix-path path/to/matrix.xlsx
+
+# Run with filters
+python -m caqf run --priority "Critical,High" --component "Chatbot"
+
+# Run in demo mode (generates synthetic actual output)
+python -m caqf run --use-synthetic-actual
+
+# Run with failure limits
+python -m caqf run --max-failures 5 --show-failures 3
+
+# Generate reports
+python -m caqf run --junit-report reports/junit.xml --md-report reports/report.md
+```
+
+### CLI Options
+
+- `--matrix-path`: Path to Excel test case matrix file (default: `templates/test-case-matrix.xlsx`)
+- `--priority`: Filter by priority (comma-separated, e.g., `"Critical,High"`)
+- `--status`: Filter by status (comma-separated, e.g., `"Ready"`)
+- `--component`: Filter by component (comma-separated, e.g., `"Chatbot,Voice"`)
+- `--use-synthetic-actual`: Generate synthetic actual output for demo when actual_result is missing
+- `--max-failures`: Stop early after N failures (default: 10)
+- `--show-failures`: Print top N failure details (default: 5)
+- `--junit-report`: Path to write JUnit XML report (optional, for CI integration)
+- `--md-report`: Path to write Markdown report (optional, for human-readable output)
+
+### Exit Codes
+
+- `0`: All tests passed (no failures)
+- `2`: Some tests failed
+- `1`: Runtime error (file missing, schema error, etc.)
+
+---
+
 ## Project Structure
 
 ```
@@ -72,7 +139,12 @@ conversational-ai-qa-framework/
 │       ├── runner/                # Test execution layer
 │       │   ├── execution_result.py
 │       │   └── test_runner.py
-│       └── pytest_integration.py  # Pytest integration helpers
+│       ├── pytest_integration.py  # Pytest integration helpers
+│       ├── cli.py                  # CLI implementation
+│       ├── __main__.py             # CLI entry point (python -m caqf)
+│       └── reporting/              # Report generation
+│           ├── junit_report.py     # JUnit XML reports
+│           └── markdown_report.py  # Markdown reports
 ├── tests/                          # Test suite
 │   ├── __init__.py
 │   ├── conftest.py                # Pytest configuration and hooks
@@ -82,6 +154,12 @@ conversational-ai-qa-framework/
 │   ├── test_test_runner.py       # Test runner tests
 │   └── test_e2e_from_excel.py    # End-to-end Excel matrix tests
 ├── docs/                           # Documentation
+│   └── ci-example.md              # CI/CD integration examples
+├── examples/                       # Example use cases
+│   └── customer-support-chatbot/   # Customer support chatbot example
+│       ├── README.md               # Example documentation
+│       ├── test-case-matrix.xlsx   # Example test matrix
+│       └── run_demo.ps1            # Demo runner script
 ├── templates/                      # QA templates
 │   └── test-case-matrix.xlsx      # Excel test case matrix template
 ├── pytest.ini                     # Pytest configuration

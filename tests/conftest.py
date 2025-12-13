@@ -56,38 +56,8 @@ def pytest_addoption(parser):
     )
 
 
-def filter_test_cases(
-    cases: list[CaseModel],
-    priority: str | None = None,
-    status: str | None = None,
-    component: str | None = None,
-) -> list[CaseModel]:
-    """Filter test cases based on provided criteria.
-    
-    Args:
-        cases: List of test cases to filter
-        priority: Comma-separated list of priorities to include (e.g., "High,Critical")
-        status: Comma-separated list of statuses to include (e.g., "Ready")
-        component: Comma-separated list of components to include (e.g., "Chatbot,Voice")
-        
-    Returns:
-        Filtered list of test cases matching the criteria
-    """
-    filtered = cases
-    
-    if priority:
-        priority_list = [p.strip() for p in priority.split(",")]
-        filtered = [c for c in filtered if c.priority in priority_list]
-    
-    if status:
-        status_list = [s.strip() for s in status.split(",")]
-        filtered = [c for c in filtered if c.status in status_list]
-    
-    if component:
-        component_list = [c.strip() for c in component.split(",")]
-        filtered = [c for c in filtered if c.component in component_list]
-    
-    return filtered
+# Import shared filtering function
+from caqf.pytest_integration import filter_test_cases
 
 
 def pytest_collection_modifyitems(config, items):
