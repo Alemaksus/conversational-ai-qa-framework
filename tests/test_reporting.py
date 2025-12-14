@@ -282,3 +282,4 @@ def test_markdown_report_no_failures(tmp_path):
     # Should not have failures section
     assert "## Failures" not in content
 
+

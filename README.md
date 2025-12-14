@@ -1,11 +1,51 @@
 # Conversational AI QA Framework
 
-A **QA-first framework** for testing conversational systems — **chatbots and voice agents** — with a strong focus on **behavior validation, regression safety, monitoring, and workflow reliability**.
+A production-ready QA framework for testing conversational AI systems — chatbots and voice agents — with a focus on behavior validation, regression safety, and CI/CD integration.
+This framework helps teams test conversational AI systems the same way they test traditional software:
+with predictable test cases, regression safety, and CI-friendly reports.
 
-This project is designed for teams building conversational AI on top of workflow automation (e.g. n8n) who need **predictable quality**, not experimental AI development.
+## The Problem
+
+Conversational AI systems fail differently from traditional software. Outputs are non-deterministic, bugs appear as behavioral regressions rather than crashes, and small changes in prompts or workflows can silently break user flows. Most monitoring focuses on uptime, not conversation quality.
+
+This framework provides **QA structure for conversational AI** — enabling teams to define expected behaviors, validate responses systematically, and catch regressions before they reach production.
+
+## Why This Framework Exists
+
+Teams building chatbots and voice agents need predictable quality assurance, not experimental AI development. This framework addresses the gap between conversational AI capabilities and production-ready QA practices by providing:
+
+- **Deterministic validation** at the QA layer (rules, expectations, execution)
+- **Regression testing** for conversational flows
+- **CI/CD integration** with standard reporting formats
+- **Vendor-agnostic design** that works with any LLM or platform
 
 ---
 
+## Key Features
+
+- **Excel-driven test matrix**: Define test cases in Excel, maintainable by non-developers
+- **Rules engine**: Validate responses using rule-based expectations (CONTAINS, NOT_EMPTY, LENGTH_MIN, etc.)
+- **Test runner**: Execute test cases and generate execution results (PASS/FAIL/BLOCKED)
+- **Pytest integration**: Run tests as part of your existing test suite
+- **CLI runner**: Execute tests from command line, ideal for CI/CD pipelines
+- **JUnit XML reports**: Standard format compatible with Jenkins, GitHub Actions, GitLab CI, and other CI systems
+- **Markdown reports**: Human-readable test summaries with failure details
+- **Demo mode**: Synthetic output generation for portfolio demonstrations and CI validation
+
+---
+## Real-world usage
+
+This framework validates **real conversational AI outputs**.
+In production environments, test cases are executed against **actual chatbot or voice agent responses**, provided via the Excel matrix or external pipelines.
+
+A **demo mode** is included purely for:
+- portfolio demonstrations
+- CI validation
+- framework testing without live integrations
+
+Demo mode is optional and never required for real usage.
+
+---
 ## Quickstart
 
 1. Create a virtual environment:
@@ -54,19 +94,84 @@ This project is designed for teams building conversational AI on top of workflow
 
 ---
 
+## Execution Modes
+
+The framework supports two execution modes, each suited for different use cases:
+
+### Pytest-based Execution
+
+Use pytest when:
+- Running tests as part of a development workflow
+- Integrating with existing pytest-based test suites
+- Using pytest plugins and fixtures
+- Running tests in IDEs with pytest support
+
+```bash
+# Run with filters
+pytest -q -m matrix --priority "Critical,High" --component "Chatbot"
+
+# Run in demo mode
+pytest -q -m matrix --use-synthetic-actual
+```
+
+### CLI-based Execution
+
+Use the CLI when:
+- Running tests in CI/CD pipelines
+- Generating reports for external systems
+- Executing tests from scripts or automation
+- Running tests without pytest infrastructure
+
+```bash
+# Basic execution
+python -m caqf run --matrix-path path/to/matrix.xlsx
+
+# With reports for CI
+python -m caqf run --junit-report reports/junit.xml --md-report reports/report.md
+```
+
+**Note:** The CLI requires the package to be installed (`pip install -e .`). This reflects real-world usage in CI/CD and production-like environments.
+
+---
+
+## Demo Mode
+
+The framework includes a **demo mode** (`--use-synthetic-actual`) that generates synthetic actual outputs when the "Actual Result" column in the Excel matrix is empty.
+
+### When to Use Demo Mode
+
+- **Portfolio demonstrations**: Show framework capabilities without requiring a live chatbot
+- **CI validation**: Verify that test infrastructure works correctly
+- **Documentation examples**: Provide runnable examples that don't depend on external systems
+- **Framework development**: Test the framework itself without integration dependencies
+
+### Production Usage
+
+In production environments, **do not use demo mode**. Instead:
+
+1. Populate the "Actual Result" column in your Excel matrix with real responses from your chatbot or voice system
+2. Run the framework without `--use-synthetic-actual`
+3. The framework will validate actual responses against expected rules
+
+Demo mode is intended for demonstrations and validation only. Real projects should provide actual outputs from their conversational AI systems.
+
+---
+
 ## Example Usage
 
-See the [customer support chatbot example](examples/customer-support-chatbot/) for a complete, real-world use case demonstrating how to:
+The [customer support chatbot example](examples/customer-support-chatbot/) demonstrates a complete, real-world use case for an e-commerce platform's support chatbot.
 
-- Define test cases in an Excel matrix
-- Run automated validation with the CLI
-- Generate reports for CI/CD integration
-- Handle different test scenarios (order status, returns, account management, etc.)
+**What you'll learn:**
+- How to structure test cases in an Excel matrix for customer support scenarios
+- How to define expected behaviors using rule-based validation
+- How to run automated validation with the CLI
+- How to generate reports for CI/CD integration
+- How to handle different test scenarios (order status inquiries, return requests, account management, etc.)
 
-The example includes:
-- Ready-to-use test matrix (`test-case-matrix.xlsx`)
-- Step-by-step documentation
-- PowerShell script for quick demo (`run_demo.ps1`)
+**The example includes:**
+- Ready-to-use test matrix (`test-case-matrix.xlsx`) with 12 test cases
+- Step-by-step documentation explaining the business context
+- PowerShell script (`run_demo.ps1`) for quick demonstration
 
 For CI/CD integration examples, see [docs/ci-example.md](docs/ci-example.md).
 
@@ -75,10 +180,6 @@ For CI/CD integration examples, see [docs/ci-example.md](docs/ci-example.md).
 ## CLI Usage
 
 The framework provides a CLI runner to execute test cases from the Excel matrix without pytest.
-
-**Note:** The CLI is designed to be used as an installed package (`pip install -e .`).
-This reflects real-world usage in CI/CD and production-like environments.
-
 
 ```bash
 # Show help
@@ -121,18 +222,61 @@ python -m caqf run --junit-report reports/junit.xml --md-report reports/report.m
 - `2`: Some tests failed
 - `1`: Runtime error (file missing, schema error, etc.)
 
+## What problems this framework solves for teams
+
+- Undetected conversational regressions after prompt or workflow changes
+- Manual QA effort for chatbot testing that does not scale
+- Lack of CI/CD visibility into conversational quality
+- Non-technical stakeholders unable to maintain test cases
+- No standard reporting for conversational AI behavior
+
+This framework turns conversational behavior into **testable, reviewable, and automatable artifacts**.
+
 ---
 
-## Production readiness
+## Who This Is For
+
+This framework is designed for:
+
+- **QA engineers** testing conversational AI systems
+- **Engineering teams** building chatbots or voice agents who need regression testing
+- **Companies** deploying conversational AI who want to ensure quality and catch regressions
+- **Teams** using workflow automation platforms (e.g., n8n) with conversational interfaces
+
+**Typical use cases:**
+- Customer support chatbots
+- Voice agents (IVR, AI call assistants)
+- Workflow-driven conversational systems
+- AI agents embedded into SaaS products
+
+---
+
+## What This Framework Is NOT
+
+To avoid confusion, this project does **not**:
+
+- Build or train AI models
+- Implement voice or chatbot platforms
+- Develop agent logic or workflows
+- Replace ML engineering or data science
+- Provide LLM orchestration or API management
+
+This is a **QA and testing framework**, focused on validation and reliability. It tests conversational AI systems but does not implement them.
+
+---
+
+## Production Readiness
 
 This framework is intentionally designed to be:
-- Testable (100% covered by unit and integration tests)
-- Deterministic at the QA layer (rules, expectations, execution)
-- CI/CD-friendly (JUnit + Markdown reports, exit codes)
-- Vendor-agnostic (no dependency on specific LLMs or platforms)
 
-It can be adopted incrementally — from documentation-only QA
-to fully automated regression pipelines.
+- **Testable**: comprehensive unit and integration test coverage
+- **Deterministic**: Rules, expectations, and execution are predictable at the QA layer
+- **CI/CD-friendly**: JUnit XML and Markdown reports, standard exit codes
+- **Vendor-agnostic**: No dependency on specific LLMs or platforms
+
+It can be adopted incrementally — from documentation-only QA to fully automated regression pipelines.
+
+---
 
 ## Project Structure
 
@@ -165,16 +309,23 @@ conversational-ai-qa-framework/
 │   ├── test_matrix_loader.py     # Matrix loader tests
 │   ├── test_rules_engine.py      # Rules engine tests
 │   ├── test_test_runner.py       # Test runner tests
-│   └── test_e2e_from_excel.py    # End-to-end Excel matrix tests
+│   ├── test_e2e_from_excel.py    # End-to-end Excel matrix tests
+│   ├── test_cli.py                # CLI tests
+│   └── test_reporting.py          # Reporting tests
 ├── docs/                           # Documentation
-│   └── ci-example.md              # CI/CD integration examples
+│   ├── ci-example.md              # CI/CD integration examples
+│   ├── test-strategy.md           # Testing strategy documentation
+│   ├── test-scenarios.md          # Test scenario examples
+│   ├── regression-checklist.md    # Regression testing checklist
+│   └── monitoring-metrics.md      # Monitoring and metrics templates
 ├── examples/                       # Example use cases
 │   └── customer-support-chatbot/   # Customer support chatbot example
 │       ├── README.md               # Example documentation
 │       ├── test-case-matrix.xlsx   # Example test matrix
 │       └── run_demo.ps1            # Demo runner script
 ├── templates/                      # QA templates
-│   └── test-case-matrix.xlsx      # Excel test case matrix template
+│   ├── test-case-matrix.xlsx      # Excel test case matrix template
+│   └── bug-report-template.md     # Bug report template
 ├── pytest.ini                     # Pytest configuration
 ├── pyproject.toml                 # Project configuration
 ├── requirements.txt               # Python dependencies
@@ -184,106 +335,20 @@ conversational-ai-qa-framework/
 
 ---
 
-## Who this is for
+## License
 
-This framework is useful if you are:
-
-- A **startup or SaaS team** running chatbots or voice agents in production  
-- A **product or engineering team** experiencing regressions after prompt, model, or workflow changes  
-- A company that needs **QA structure for conversational AI**, but does not want to build ML infrastructure  
-- A team preparing for **scale, audits, or long-term maintenance**
-
-Typical use cases:
-- Customer support chatbots  
-- Voice agents (IVR, AI call assistants)  
-- Workflow-driven conversational systems  
-- AI agents embedded into SaaS products  
+This project is licensed under the MIT License.
 
 ---
 
-## What problem this framework solves
+## Additional Resources
 
-Conversational AI systems fail differently from traditional software:
-
-- Outputs are **non-deterministic**
-- Bugs often appear as **behavioral regressions**, not crashes
-- Small changes in prompts or workflows can silently break user flows
-- Monitoring usually focuses on uptime, not conversation quality
-
-This framework addresses those gaps by providing **QA structure**, not AI implementation.
+- [CI/CD Integration Examples](docs/ci-example.md) - GitHub Actions, Jenkins, GitLab CI examples
+- [Test Strategy Documentation](docs/test-strategy.md) - Testing philosophy and approach
+- [Test Scenarios](docs/test-scenarios.md) - Example test scenarios for conversational AI
+- [Regression Checklist](docs/regression-checklist.md) - Pre-deployment validation checklist
+- [Monitoring Metrics](docs/monitoring-metrics.md) - Quality metrics and monitoring templates
 
 ---
 
-## What is included
-
-This repository focuses on **QA artifacts and patterns**, not on building AI agents.
-
-Included concepts and materials:
-
-- **QA strategy for conversational systems**
-- **Scenario-based test design** for chatbots and voice agents
-- **Regression models** for conversational behavior
-- **Failure mode analysis** (ASR, NLU, logic, latency, fallback paths)
-- **Monitoring and metrics templates** for conversational quality
-- **Documentation-first approach** suitable for distributed teams
-
-The framework is intentionally **vendor-agnostic** and can be adapted to:
-- Chatbots
-- Voice platforms
-- Workflow engines
-- API-driven conversational systems
-
----
-
-## What this framework is NOT
-
-To avoid confusion, this project does **not**:
-
-- Build or train AI models  
-- Implement voice or chatbot platforms  
-- Develop agent logic or workflows  
-- Replace ML engineering or data science  
-
-This is a **QA and testing framework**, focused on validation and reliability.
-
----
-
-## How teams typically use it
-
-Teams usually apply this framework to:
-
-1. Define **expected conversational behavior**
-2. Design **test scenarios** for critical user flows
-3. Detect **regressions after changes**
-4. Track conversational quality with **clear metrics**
-5. Transfer QA ownership to non-specialists via documentation
-
-It works well as:
-- A starting point for **AI QA processes**
-- A reference for **conversational testing strategy**
-- A foundation for **automation or monitoring expansion**
-
----
-
-## Why QA-first for conversational AI
-
-Conversational systems behave more like **products** than algorithms.
-
-Treating them as testable systems — with scenarios, regression, and monitoring — leads to:
-- Fewer production incidents
-- Faster iteration cycles
-- Better user experience
-- Lower long-term maintenance cost
-
----
-
-## About this project
-
-This repository is a **reference QA framework**, created to demonstrate:
-- How conversational AI can be tested systematically
-- How QA practices adapt to chatbots and voice agents
-- How to reduce risk without overengineering AI solutions
-
----
-
-If you are looking for **QA support, test strategy, or validation for conversational AI systems**, this framework reflects the approach I use in real projects.
+If you are looking for **QA support, test strategy, or validation for conversational AI systems or CI pipeline**, this framework reflects production-ready practices used in real projects.
