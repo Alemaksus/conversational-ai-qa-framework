@@ -343,6 +343,7 @@ This project is licensed under the MIT License.
 
 ## Additional Resources
 
+- **GitHub Actions CI**: This repository includes a production-ready CI workflow (`.github/workflows/ci.yml`) that runs unit tests and matrix tests, generating JUnit XML and Markdown reports
 - [CI/CD Integration Examples](docs/ci-example.md) - GitHub Actions, Jenkins, GitLab CI examples
 - [Test Strategy Documentation](docs/test-strategy.md) - Testing philosophy and approach
 - [Test Scenarios](docs/test-scenarios.md) - Example test scenarios for conversational AI
